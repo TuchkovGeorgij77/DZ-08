@@ -10,37 +10,43 @@
 
         private static void Main(string[] args)
         {
+            
         }
 
         private static void readFunction()
         {
+            _rcMutex.WaitOne();
+
             if (_rc == 0)
             {
-                _rcMutex.WaitOne();
-                _rc++;
-                _rcMutex.ReleaseMutex();
-            }
-            else if (_rc != 0)
-            {
                 _semaphore.WaitOne();
-                Console.WriteLine($"{_x}");
-                _semaphore.Release();
-
-                _rcMutex.WaitOne();
-                _rc--;
-                _rcMutex.ReleaseMutex();
             }
+
+            _rc++;
+
+            _rcMutex.ReleaseMutex();
+
+
+            Console.WriteLine(_x);
+
+
+            _rcMutex.WaitOne();
+
+            if (--_rc == 0)
+            {
+                _semaphore.Release();
+            }
+
+            _rc--;
+
+            _rcMutex.ReleaseMutex();
         }
 
         private static void writeFunction()
         {
-            if (_rc == 0)
-            {
-                _semaphore.WaitOne();
-                _x++;
-                _semaphore.Release();
-            }
-            else return;
+            _semaphore.WaitOne();
+            _x++;
+            _semaphore.Release();
         }
     }
 }
